@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Poetry Haven - 5000+ Poems</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Open+Sans&display=swap');
+
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Merriweather', serif;
+    background: linear-gradient(135deg, #f0e9f5 0%, #dbe6f6 100%);
+    color: #2e2e2e;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Background blurred shapes */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.4;
+    z-index: -1;
+  }
+  body::before {
+    width: 400px; height: 400px;
+    background: #a085ff;
+    top: 10%;
+    left: -100px;
+  }
+  body::after {
+    width: 300px; height: 300px;
+    background: #6ec1ff;
+    bottom: 15%;
+    right: -80px;
+  }
+
+  header {
+    background: rgba(255 255 255 / 0.85);
+    padding: 1.2rem 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 101;
+    backdrop-filter: saturate(180%) blur(18px);
+  }
+  header h1 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 2.4rem;
+    letter-spacing: 1.4px;
+    color: #4b3bff;
+    user-select: none;
+  }
+  nav {
+    margin-top: 0.8rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  nav button {
+    background: rgba(255 255 255 / 0.6);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 20px;
+    backdrop-filter: blur(14px);
+    cursor: pointer;
+    color: #5a4de8;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(75,59,255,0.25);
+  }
+  nav button:hover,
+  nav button.active {
+    background: #4b3bff;
+    color: white;
+    box-shadow: 0 6px 12px rgba(75,59,255,0.6);
+    transform: translateY(-2px);
+  }
+
+  main {
+    max-width: 900px;
+    margin: 2.5rem auto 4rem;
+    padding: 0 1rem;
+  }
+
+  .search-filter {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .search-filter input[type="search"] {
+    flex-grow: 1;
+    min-width: 220px;
+    max-width: 400px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 1.8px solid #a1a1a1;
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.3s ease;
+  }
+  .search-filter input[type="search"]:focus {
+    outline: none;
+    border-color: #4b3bff;
+    box-shadow: 0 0 8px rgba(75,59,255,0.4);
+  }
+  .filter-select {
+    min-width: 150px;
+    padding: 0.6rem 1rem;
+    font-size: 1.05rem;
+    border-radius: 12px;
+    border: 1.8px solid #a1a1a1;
+    background: white;
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.3s ease;
+  }
+  .filter-select:focus {
+    outline: none;
+    border-color: #4b3bff;
+    box-shadow: 0 0 8px rgba(75,59,255,0.4);
+  }
+
+  .poem-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .poem-card {
+    background: white;
+    padding: 1.8rem 2.2rem;
+    border-radius: 18px;
+    margin-bottom: 2rem;
+    box-shadow: 0 14px 28px rgba(75,59,255,0.1), 0 10px 10px rgba(75,59,255,0.06);
+    opacity: 0;
+    animation: fadeInUp 0.6s forwards ease;
+    font-size: 1.15rem;
+  }
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .poem-card h2 {
+    margin: 0 0 0.4rem 0;
+    font-weight: 700;
+    color: #3a2980;
+  }
+  .poem-card .author {
+    font-style: italic;
+    color: #888;
+    margin-bottom: 1.1rem;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+  }
+  .poem-text {
+    white-space: pre-line;
+    line-height: 1.9;
+    color: #3b3b3b;
+  }
+
+  .poem-actions {
+    margin-top: 1.2rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  .like-btn {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #4b3bff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.3s ease;
+    user-select: none;
+  }
+  .like-btn.liked {
+    color: #d93025;
+  }
+  .like-btn:hover {
+    color: #6f5dff;
+  }
+
+  .share-btn {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #666;
+    font-size: 1.05rem;
+    user-select: none;
+    transition: color 0.3s ease;
+  }
+  .share-btn:hover {
+    color: #4b3bff;
+  }
+
+  .comments-section {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #777;
+    font-style: italic;
+  }
+
+  .pagination {
+    text-align: center;
+    margin-top: 3rem;
+  }
+  .pagination button {
+    background: #4b3bff;
+    border: none;
+    color: white;
+    padding: 0.7rem 1.4rem;
+    margin: 0 0.5rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(75,59,255,0.4);
+    transition: background-color 0.3s ease;
+  }
+  .pagination button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .pagination button:hover:not(:disabled) {
+    background: #3425c9;
+  }
+
+  footer {
+    text-align: center;
+    padding: 1.8rem;
+    font-size: 0.95rem;
+    color: #666;
+    background: #e7eaff;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    main {
+      margin: 1rem;
+    }
+    nav {
+      justify-content: center;
+    }
+    .search-filter {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .search-filter input[type="search"],
+    .filter-select {
+      width: 100%;
+      max-width: none;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Poetry Haven</h1>
+  <nav id="category-nav" aria-label="Poem categories">
+    <!-- Categories inserted by JS -->
+  </nav>
+</header>
+<main>
+  <section class="search-filter" aria-label="Search and filter poems">
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="Search by title, author, keywords..."
+      aria-label="Search poems"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <select id="genreFilter" class="filter-select" aria-label="Filter by genre">
+      <option value="">All Genres</option>
+    </select>
+    <select id="moodFilter" class="filter-select" aria-label="Filter by mood">
+      <option value="">All Moods</option>
+    </select>
+  </section>
+
+  <ul id="poemList" class="poem-list" aria-live="polite" aria-relevant="additions">
+    <!-- Poems inserted by JS -->
+  </ul>
+
+  <div class="pagination" aria-label="Pagination controls">
+    <button id="prevPage" disabled>Previous</button>
+    <button id="nextPage">Next</button>
+  </div>
+</main>
+<footer>
+  &copy; 2025 Poetry Haven. All rights reserved.
+</footer>
+
+<script>
+  // Generate 5000+ dummy poems dynamically for demo
+  const authors = [
+    "Emily Dickinson", "Robert Frost", "William Shakespeare", "Langston Hughes",
+    "Maya Angelou", "Walt Whitman", "Sylvia Plath", "Pablo Neruda",
+    "Elizabeth Bishop", "T.S. Eliot"
+  ];
+
+  const genres = [
+    "Nature", "Romance", "Inspirational", "Epic", "Melancholic",
+    "Humor", "Political", "Spiritual", "Historical", "Philosophical"
+  ];
+
+  const moods = [
+    "Reflective", "Hopeful", "Passionate", "Melancholic", "Joyful",
+    "Calm", "Angry", "Dreamy", "Sad", "Uplifting"
+  ];
+
+  // Simple poem lines templates
+  const poemTemplates = [
+    `The sun dips low in the sky,
+Whispers of night softly sigh,
+Stars awaken, gleam on high,
+Painting dreams for you and I.`,
+
+    `In silent woods, the shadows play,
+A gentle breeze guides my way,
+Leaves in dance, a bright ballet,
+Nature's song at close of day.`,
+
+    `Love blooms like a fragile rose,
+In tender hearts its magic grows,
+Through storms and calm, it always shows,
+The light within that never goes.`,
+
+    `Time drifts like a river's flow,
+Moments come and moments go,
+But in the heart, seeds we sow,
+Forevermore will gently grow.`,
+
+    `A laugh, a tear, the human art,
+Expressions drawn from deepest heart,
+In every word, a vital part,
+Of stories told and fresh new start.`
+  ];
+
+  // Generate poem text by repeating or slightly varying template lines
+  function generatePoemText() {
+    const template = poemTemplates[Math.floor(Math.random() * poemTemplates.length)];
+    return template;
+  }
+
+  // Create 5000 poems
+  const poems = [];
+  for(let i=1; i<=5000; i++) {
+    poems.push({
+      id: i,
+      title: `Poem #${i}`,
+      author: authors[Math.floor(Math.random() * authors.length)],
+      genre: genres[Math.floor(Math.random() * genres.length)],
+      mood: moods[Math.floor(Math.random() * moods.length)],
+      text: generatePoemText(),
+      likes: Math.floor(Math.random() * 100)
+    });
+  }
+
+  // Globals
+  let currentCategory = "";
+  let currentPage = 1;
+  const poemsPerPage = 6;
+
+  // Unique genres and moods (already declared, but dynamically create sets for filter options)
+  const uniqueGenres = [...new Set(poems.map(p => p.genre))].sort();
+  const uniqueMoods = [...new Set(poems.map(p => p.mood))].sort();
+
+  // Elements
+  const poemListEl = document.getElementById('poemList');
+  const searchInput = document.getElementById('searchInput');
+  const genreFilter = document.getElementById('genreFilter');
+  const moodFilter = document.getElementById('moodFilter');
+  const prevPageBtn = document.getElementById('prevPage');
+  const nextPageBtn = document.getElementById('nextPage');
+  const categoryNav = document.getElementById('category-nav');
+
+  // Setup genre and mood filter options
+  function populateFilters() {
+    uniqueGenres.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = g;
+      genreFilter.appendChild(opt);
+    });
+    uniqueMoods.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = m;
+      moodFilter.appendChild(opt);
+    });
+  }
+
+  // Setup category buttons (by genre for simplicity)
+  function populateCategories() {
+    const allBtn = document.createElement('button');
+    allBtn.textContent = "All";
+    allBtn.classList.add('active');
+    allBtn.setAttribute('aria-pressed', 'true');
+    allBtn.addEventListener('click', () => {
+      currentCategory = "";
+      updateActiveCategoryButton(allBtn);
+      currentPage = 1;
+      renderPoems();
+    });
+    categoryNav.appendChild(allBtn);
+
+    uniqueGenres.forEach(g => {
+      const btn = document.createElement('button');
+      btn.textContent = g;
+      btn.setAttribute('aria-pressed', 'false');
+      btn.addEventListener('click', () => {
+        currentCategory = g;
+        updateActiveCategoryButton(btn);
+        currentPage = 1;
+        renderPoems();
+      });
+      categoryNav.appendChild(btn);
+    });
+  }
+
+  function updateActiveCategoryButton(activeBtn) {
+    [...categoryNav.children].forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed', 'false');
+    });
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-pressed', 'true');
+  }
+
+  // Filter poems based on current filters
+  function filterPoems() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const selectedGenre = genreFilter.value;
+    const selectedMood = moodFilter.value;
+
+    return poems.filter(p => {
+      const matchesCategory = currentCategory === "" || p.genre === currentCategory;
+      const matchesGenre = selectedGenre === "" || p.genre === selectedGenre;
+      const matchesMood = selectedMood === "" || p.mood === selectedMood;
+
+      const matchesSearch = p.title.toLowerCase().includes(searchTerm) ||
+        p.author.toLowerCase().includes(searchTerm) ||
+        p.text.toLowerCase().includes(searchTerm);
+
+      return matchesCategory && matchesGenre && matchesMood && matchesSearch;
+    });
+  }
+
+  // Render poem cards on the page with pagination
+  function renderPoems() {
+    poemListEl.innerHTML = '';
+    const filtered = filterPoems();
+
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / poemsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+    const start = (currentPage - 1) * poemsPerPage;
+    const pagePoems = filtered.slice(start, start + poemsPerPage);
+
+    pagePoems.forEach((p, i) => {
+      const li = document.createElement('li');
+      li.className = 'poem-card';
+      li.style.animationDelay = `${i * 0.1}s`;
+      li.setAttribute('tabindex', '0');
+      li.innerHTML = `
+        <h2>${p.title}</h2>
+        <div class="author">by ${p.author} | <small>${p.genre} | ${p.mood}</small></div>
+        <div class="poem-text">${p.text}</div>
+        <div class="poem-actions">
+          <button aria-pressed="false" class="like-btn" aria-label="Like poem titled ${p.title}">
+            ❤️ <span>${p.likes}</span>
+          </button>
+          <button class="share-btn" aria-label="Share poem titled ${p.title}">🔗 Share</button>
+        </div>
+      `;
+
+      // Like button logic
+      const likeBtn = li.querySelector('.like-btn');
+      likeBtn.addEventListener('click', () => {
+        if (likeBtn.classList.contains('liked')) {
+          likeBtn.classList.remove('liked');
+          likeBtn.setAttribute('aria-pressed', 'false');
+          p.likes--;
+        } else {
+          likeBtn.classList.add('liked');
+          likeBtn.setAttribute('aria-pressed', 'true');
+          p.likes++;
+        }
+        likeBtn.querySelector('span').textContent = p.likes;
+      });
+
+      // Share button logic (copy link)
+      li.querySelector('.share-btn').addEventListener('click', () => {
+        const poemUrl = `${window.location.href}#poem-${p.id}`;
+        navigator.clipboard.writeText(poemUrl).then(() => {
+          alert(`Poem URL copied to clipboard:\n${poemUrl}`);
+        }).catch(() => {
+          alert('Unable to copy poem link.');
+        });
+      });
+
+      poemListEl.appendChild(li);
+    });
+
+    // Update pagination buttons
+    prevPageBtn.disabled = currentPage <= 1;
+    nextPageBtn.disabled = currentPage >= totalPages || totalPages === 0;
+
+    if (filtered.length === 0) {
+      poemListEl.innerHTML = '<li style="text-align:center; font-style: italic; color: #888;">No poems found.</li>';
+    }
+  }
+
+  // Pagination handlers
+  prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPoems();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+  });
+  nextPageBtn.addEventListener('click', () => {
+    currentPage++;
+    renderPoems();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+
+  // Filter change handlers
+  searchInput.addEventListener('input', () => {
+    currentPage = 1;
+    renderPoems();
+  });
+  genreFilter.addEventListener('change', () => {
+    currentPage = 1;
+    renderPoems();
+  });
+  moodFilter.addEventListener('change', () => {
+    currentPage = 1;
+    renderPoems();
+  });
+
+  // Init
+  populateFilters();
+  populateCategories();
+  renderPoems();
+</script>
+</body>
+</html>
